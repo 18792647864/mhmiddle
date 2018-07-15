@@ -16,7 +16,7 @@ let resonseJSON = function (res,ret)
     }
 };
 
-
+//ajax每次请求的时候会先发出options请求，得到确认后才会发出正式请求
 // router.options('/addArticle',function (req,res,next){
 //             res.send('success_options');
 //     }
@@ -33,12 +33,14 @@ router.post('/addArticle',function (req,res,next)
         let param = req.body;
         connection.query(articleSQL.insert,[param.title,param.introduction],function (err,result)
         {
-            console.log(result);
-            res.send(result);
-            connection.release();
+            connection.query(articleSQL.insert_content,[result.insertId,req.body.content],function (err,result)
+            {
+                console.log(result);
+                res.send(result);
+                connection.release();
+            });
         });
     });
-
 });
 
 
@@ -49,12 +51,12 @@ router.get('/queryArticle',function (req, res, next)
     // console.log(req);
     pool.getConnection(function (err, connection)
     {
-        let param = req.query||req.param;
-        console.log('param');
-        console.log(param);
-        connection.query(articleSQL.getUserById,[param.uid],function (err, result)
+        // let param = req.query||req.param;
+        // console.log('param');
+        // console.log(param);
+        connection.query(articleSQL.queryAll,function (err, result)
         {
-            console.log("result");
+            // console.log("result");
             console.log(result);
             res.send(result);
             connection.release();

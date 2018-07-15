@@ -22,6 +22,12 @@ var bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+//跨域请求
+var allowCrossDomain = function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');//自定义中间件，设置跨域需要的响应头。
+    next();
+};
+app.use(allowCrossDomain);//运用跨域的中间件
 
 app.use(logger('dev'));
 app.use(express.json());
