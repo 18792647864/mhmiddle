@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
+moment.locale('zh-cn');
 
 let mysql  = require('mysql');
 let dbConfig = require('../db/DBConfig.js');
@@ -58,6 +60,10 @@ router.get('/queryArticle',function (req, res, next)
         {
             // console.log("result");
             // console.log(result);
+            for(var i = 0;i<result.length;i++)
+            {
+                result[i].release_time = moment(result[i].release_time).format('YYYY-MM-DD HH:mm:ss');
+            }
             res.send(result);
             connection.release();
         })
@@ -77,7 +83,8 @@ router.get('/getSingleArticle',function (req, res, next)
         {
             console.log(err);
             console.log(result[0].content);
-
+            var formatDate = moment(result[0].content.release_time).format('YYYY-MM-DD HH:mm:ss');
+            console.log(formatDate);
             res.send(result[0].content);
             connection.release();
         })
