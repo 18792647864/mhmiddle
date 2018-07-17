@@ -57,8 +57,28 @@ router.get('/queryArticle',function (req, res, next)
         connection.query(articleSQL.queryAll,function (err, result)
         {
             // console.log("result");
-            console.log(result);
+            // console.log(result);
             res.send(result);
+            connection.release();
+        })
+    });
+});
+
+//查询单个文章内容
+router.get('/getSingleArticle',function (req, res, next)
+{
+    // console.log(req);
+    pool.getConnection(function (err, connection)
+    {
+        let param = req.query||req.param;
+        console.log('param');
+        console.log(param);
+        connection.query(articleSQL.getArticleById,[param.contentId],function (err, result)
+        {
+            console.log(err);
+            console.log(result[0].content);
+
+            res.send(result[0].content);
             connection.release();
         })
     });
