@@ -43,6 +43,7 @@ router.get('/addUser',function (req,res,next)
         });
     });
 });
+
 //查找用户
 router.get('/queryUser',function (req, res, next)
 {
@@ -60,6 +61,58 @@ router.get('/queryUser',function (req, res, next)
             connection.release();
         })
     });
+});
+
+
+
+//注册
+router.get("/register",function(req,res){
+    if(!req.session.user){ 					//
+        req.session.error = "请先登录";
+        res.redirect("/login");				//
+    }
+    res.render("home",{title:'Home'});         //
+});
+
+//登陆
+router.get("/login",function(req,res){
+    pool.getConnection(function (err,connection)
+    {
+        let param = req.query || req.param;
+        connection.query(userSQL.getUserByName,[param.name,param.name,param.name,param.name],function (err,result)
+        {
+            console.log(result[0].password);
+            console.log(result[0].uid);
+            if(result[0].password == param.password)
+            {
+                req.session.user = result[0];
+                res.send(200);
+            }
+            else
+            {
+                res.send(404);
+            }
+            connection.release();
+        });
+    });
+});
+
+
+//判断是否登陆
+router.get("/islogin",function(req,res){
+    if(!req.session.user){ 					//
+        req.session.error = "请先登录";
+        res.redirect("/login");				//
+    }
+    res.render("home",{title:'Home'});         //
+});
+
+
+//登出
+router.get("/loginout",function(req,res){    // 到达 /logout 路径则登出， session中user,error对象置空，并重定向到根路径
+    req.session.user = null;
+    req.session.error = null;
+    res.redirect("/");
 });
 
 module.exports = router;
