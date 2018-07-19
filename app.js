@@ -16,11 +16,13 @@ var articleRouter = require('./routes/article');
 var app = express();
 
 app.use(session({
-    secret: 'secret',
-    cookie:{
-        maxAge: 1000*60*30
+    secret: 'film',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 30, // harlf of hour
     }
-}));
+}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

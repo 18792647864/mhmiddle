@@ -81,12 +81,12 @@ router.get("/login",function(req,res){
         let param = req.query || req.param;
         connection.query(userSQL.getUserByName,[param.name,param.name,param.name,param.name],function (err,result)
         {
-            console.log(result[0].password);
-            console.log(result[0].uid);
+            console.log('login');
+            console.log(req.session.id);
             if(result[0].password == param.password)
             {
                 req.session.user = result[0];
-                res.send(200);
+                res.send(result);
             }
             else
             {
@@ -100,11 +100,14 @@ router.get("/login",function(req,res){
 
 //判断是否登陆
 router.get("/islogin",function(req,res){
-    if(!req.session.user){ 					//
-        req.session.error = "请先登录";
-        res.redirect("/login");				//
+    console.log('islogin');
+    console.log(req.session.id);
+    if(!req.session.user){
+        res.send("用户么有登陆，请先登陆");
     }
-    res.render("home",{title:'Home'});         //
+    else {
+        res.send("用户已登陆");
+    }
 });
 
 
