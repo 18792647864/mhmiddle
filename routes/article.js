@@ -48,6 +48,34 @@ router.post('/addArticle',function (req,res,next)
 });
 
 
+//添加文章
+router.post('/addComments',function (req,res,next)
+{
+    // console.log(req);
+    //从连接池中获取链接
+    pool.getConnection(function (err,connection)
+    {
+        var date = new Date();
+        console.log(req.body);
+        let param = req.body;
+        connection.query(articleSQL.insertComment,[param.article_id,
+            param.comments,
+            param.uId,
+            '0',
+            '0',
+            '0',
+            '0',
+            '0',
+            '1',
+            date],function (err,result) {
+                console.log(result);
+                res.send(result);
+                connection.release();
+            });
+    });
+});
+
+
 
 //查找文章
 router.get('/queryArticle',function (req, res, next)
