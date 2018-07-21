@@ -31,9 +31,11 @@ router.post('/addArticle',function (req,res,next)
     //从连接池中获取链接
     pool.getConnection(function (err,connection)
     {
+
+        var date = new Date();
         console.log(req.body);
         let param = req.body;
-        connection.query(articleSQL.insert,[param.title,param.introduction],function (err,result)
+        connection.query(articleSQL.insert,[param.title,param.introduction,date],function (err,result)
         {
             connection.query(articleSQL.insert_content,[result.insertId,req.body.content],function (err,result)
             {
