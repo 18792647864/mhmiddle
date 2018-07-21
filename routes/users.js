@@ -6,6 +6,9 @@ let dbConfig = require('../db/DBConfig.js');
 let userSQL  = require('../db/usersql.js');
 let pool = mysql.createPool(dbConfig.mysql);
 
+var moment = require('moment');
+moment.locale('zh-cn');
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -65,14 +68,40 @@ router.get('/queryUser',function (req, res, next)
 
 
 
-//注册
-router.get("/register",function(req,res){
-    if(!req.session.user){ 					//
-        req.session.error = "请先登录";
-        res.redirect("/login");				//
-    }
-    res.render("home",{title:'Home'});         //
+//注册用户
+router.post('/register',function (req,res,next)
+{
+    // console.log(req);
+    //从连接池中获取链接
+    pool.getConnection(function (err,connection)
+    {
+        console.log(req.body);
+        let param = req.body;
+        var date = new Date();
+        var bithday = date;
+        if(param.birthday)
+        {
+            bithday = moment(param.birthday).format('YYYY-MM-DD');
+        }
+
+        connection.query(userSQL.insert,[param.nickname,
+                                    param.nickname,
+                                    param.gender,
+                                    param.password,
+                                    bithday,
+                                    param.phonenumber,
+                                    param.mailbox,
+                                    param.company,
+                                    param.career,
+                                    param.personalprofile,date],function (err,result)
+        {
+            console.log(result);
+            res.send(result);
+            connection.release();
+        });
+    });
 });
+
 
 //登陆
 router.get("/login",function(req,res){
