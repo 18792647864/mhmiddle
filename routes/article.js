@@ -35,9 +35,11 @@ router.post('/addArticle',function (req,res,next)
         var date = new Date();
         console.log(req.body);
         let param = req.body;
-        connection.query(articleSQL.insert,[param.title,param.introduction,date],function (err,result)
+        var cateId = 5; //分类暂时全部是5，既综合推荐栏目
+        connection.query(articleSQL.insert,[param.title,param.introduction,date,param.uId,cateId],function (err,result)
         {
-            connection.query(articleSQL.insert_content,[result.insertId,req.body.content],function (err,result)
+
+            connection.query(articleSQL.insert_content,[result.insertId,param.content],function (err,result)
             {
                 console.log(result);
                 res.send(result);
@@ -48,7 +50,7 @@ router.post('/addArticle',function (req,res,next)
 });
 
 
-//添加文章
+//添加评论
 router.post('/addComments',function (req,res,next)
 {
     // console.log(req);
@@ -68,6 +70,10 @@ router.post('/addComments',function (req,res,next)
             '0',
             '1',
             date],function (err,result) {
+                //更新文章表中的评论数统计
+                connection.query(articleSQL.updateArticle,[param.article_id],function (err,result) {
+                    console.log(result);
+                });
                 console.log(result);
                 res.send(result);
                 connection.release();
@@ -116,6 +122,51 @@ router.get('/getSingleArticle',function (req, res, next)
             var formatDate = moment(result[0].content.release_time).format('YYYY-MM-DD HH:mm:ss');
             console.log(formatDate);
             res.send(result[0].content);
+            connection.release();
+        })
+    });
+});
+
+
+
+//查询最新的评论信息
+router.get('/getNewcomments',function (req, res, next)
+{
+    console.log('查询最新的评论信息');
+    pool.getConnection(function (err, connection)
+    {
+        let param = req.query||req.param;
+        console.log('param');
+        console.log(param);
+        connection.query(articleSQL.getNewcomments,[param.articleId],function (err, result)
+        {
+            console.log(err);
+            // console.log(result[0].content);
+            // var formatDate = moment(result[0].content.release_time).format('YYYY-MM-DD HH:mm:ss');
+            // console.log(formatDate);
+            res.send(result);
+            connection.release();
+        })
+    });
+});
+
+
+//查询热评
+router.get('/getHotcomments',function (req, res, next)
+{
+    console.log('查询最新的评论信息');
+    pool.getConnection(function (err, connection)
+    {
+        let param = req.query||req.param;
+        console.log('param');
+        console.log(param);
+        connection.query(articleSQL.getHotcomments,[param.articleId],function (err, result)
+        {
+            console.log(err);
+            // console.log(result[0].content);
+            // var formatDate = moment(result[0].content.release_time).format('YYYY-MM-DD HH:mm:ss');
+            // console.log(formatDate);
+            res.send(result);
             connection.release();
         })
     });
