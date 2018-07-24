@@ -26,6 +26,44 @@ let resonseJSON = function (res,ret)
     }
 };
 
+
+
+
+//修改用户信息
+router.post('/updateUserInfo',function (req,res,next)
+{
+    // console.log(req);
+    //从连接池中获取链接
+    pool.getConnection(function (err,connection)
+    {
+        console.log(req.body);
+        let param = req.body;
+
+        var birthday = new Date();
+        if(param.birthday)
+        {
+            birthday = moment(param.birthday).format('YYYY-MM-DD');
+        }
+
+        console.log(birthday);
+
+        connection.query(userSQL.updateUserInfo,[param.nickname,
+            param.nickname,
+            param.gender,
+            birthday,
+            param.phone_number,
+            param.mailbox,
+            param.company,
+            param.career,
+            param.personal_profile,param.uid],function (err,result)
+        {
+            console.log(result);
+            res.send(result);
+            connection.release();
+        });
+    });
+});
+
 //添加用户
 router.get('/addUser',function (req,res,next)
 {
@@ -129,22 +167,22 @@ router.get("/login",function(req,res){
 
 //判断是否登陆
 router.get("/islogin",function(req,res){
-    console.log('islogin');
-    console.log(req.session.id);
-    if(!req.session.user){
-        res.send("用户么有登陆，请先登陆");
-    }
-    else {
-        res.send("用户已登陆");
-    }
+    // console.log('islogin');
+    // console.log(req.session.id);
+    // if(!req.session.user){
+    //     res.send("用户么有登陆，请先登陆");
+    // }
+    // else {
+    //     res.send("用户已登陆");
+    // }
 });
 
 
 //登出
 router.get("/loginout",function(req,res){    // 到达 /logout 路径则登出， session中user,error对象置空，并重定向到根路径
-    req.session.user = null;
-    req.session.error = null;
-    res.redirect("/");
+    // req.session.user = null;
+    // req.session.error = null;
+    // res.redirect("/");
 });
 
 module.exports = router;

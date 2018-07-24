@@ -36,7 +36,7 @@ router.post('/addArticle',function (req,res,next)
         console.log(req.body);
         let param = req.body;
         var cateId = 5; //分类暂时全部是5，既综合推荐栏目
-        connection.query(articleSQL.insert,[param.title,param.introduction,date,param.uId,cateId],function (err,result)
+        connection.query(articleSQL.insert,[param.title,param.introduction,date,param.uId,cateId,param.isdraft],function (err,result)
         {
 
             connection.query(articleSQL.insert_content,[result.insertId,param.content],function (err,result)
@@ -89,10 +89,10 @@ router.get('/queryArticle',function (req, res, next)
     // console.log(req);
     pool.getConnection(function (err, connection)
     {
-        // let param = req.query||req.param;
+        let param = req.query||req.param;
         // console.log('param');
         // console.log(param);
-        connection.query(articleSQL.queryAll,function (err, result)
+        connection.query(articleSQL.queryAll,[param.isdraft],function (err, result)
         {
             // console.log("result");
             // console.log(result);
@@ -105,6 +105,31 @@ router.get('/queryArticle',function (req, res, next)
         })
     });
 });
+
+//查找文章
+router.get('/queryUserArticle',function (req, res, next)
+{
+    // console.log(req);
+    pool.getConnection(function (err, connection)
+    {
+        let param = req.query||req.param;
+        // console.log('param');
+        // console.log(param);
+        connection.query(articleSQL.queryUserAll,[param.isdraft,param.uId],function (err, result)
+        {
+            // console.log("result");
+            // console.log(result);
+            for(var i = 0;i<result.length;i++)
+            {
+                result[i].release_time = moment(result[i].release_time).format('YYYY-MM-DD HH:mm:ss');
+            }
+            res.send(result);
+            connection.release();
+        })
+    });
+});
+
+
 
 //查询单个文章内容
 router.get('/getSingleArticle',function (req, res, next)
