@@ -46,17 +46,20 @@ router.post('/updateUserInfo',function (req,res,next)
         }
 
         console.log(birthday);
+        var gender = param.gender || 0;
 
         connection.query(userSQL.updateUserInfo,[param.nickname,
-            param.nickname,
-            param.gender,
-            birthday,
-            param.phone_number,
-            param.mailbox,
-            param.company,
-            param.career,
-            param.personal_profile,param.uid],function (err,result)
+                                                param.nickname,
+                                                gender,
+                                                birthday,
+                                                param.phone_number,
+                                                param.mailbox,
+                                                param.company,
+                                                param.career,
+                                                param.personal_profile,
+                                                param.uid],function (err,result)
         {
+            console.log(err);
             console.log(result);
             res.send(result);
             connection.release();
@@ -146,19 +149,31 @@ router.get("/login",function(req,res){
     pool.getConnection(function (err,connection)
     {
         let param = req.query || req.param;
+        var userResult = {};
         connection.query(userSQL.getUserByName,[param.name,param.name,param.name,param.name],function (err,result)
         {
-            console.log('login');
-            console.log(req.session.id);
-            if(result[0].password == param.password)
+            console.log(err);
+            console.log(result);
+            if(result.length == 0)
             {
-                req.session.user = result[0];
-                res.send(result);
+                userResult.code = '2001';
+                userResult.errInfo = '密码或者用户名错误';
             }
             else
             {
-                res.send(404);
+                if(result[0].password == param.password)
+                {
+                    userResult.code = '2000';
+                    userResult.errInfo = '用户名和密码正确，允许登陆';
+                    userResult.userInfo = result[0];
+                }
+                else
+                {
+                    userResult.code = '2002';
+                    userResult.errInfo = '密码或者用户名错误';
+                }
             }
+            res.send(userResult);
             connection.release();
         });
     });

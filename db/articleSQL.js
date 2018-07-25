@@ -14,7 +14,7 @@ var ArticleSQL=
         '\tand users.uid = a.uId\n' +
         '\tand cate.category_id = a.categoryId and a.isdraft = ? and a.uId = ?',
         getArticleById: 'select content from mh_article_content where content_id = ?',
-        updateArticle:'UPDATE mh_article set count_comments = count_comments +1 where article_id = ?',
+        updateArticleComments:'UPDATE mh_article set count_comments = count_comments +1 where article_id = ?',
         getNewcomments:'SELECT comment_id,article_id,content,from_uid,is_top,is_hot,like_num,reply_num,is_reply,status,create_time,users.nickname\n' +
         'from mh_comment comm,mh_user users\n' +
         'where comm.from_uid = users.uid and comm.article_id = ?',
@@ -22,6 +22,9 @@ var ArticleSQL=
         'from mh_comment comm,mh_user users\n' +
         'where comm.from_uid = users.uid\n' +
         'and comm.is_hot = \'1\'\n' +
-        'and comm.article_id = ?'
+        'and comm.article_id = ?',
+        getCateOptions:'SELECT category_id as catevalue,name as catelabel from mh_category',
+        addArticlelikes:'insert into mh_like(uid,theme_id,like_time,type,status) values(?,?,?,?,?)',
+        updateArticleLikes:'UPDATE mh_article set count_likes = count_likes +1 where article_id = ?'
     };
 module.exports = ArticleSQL;
