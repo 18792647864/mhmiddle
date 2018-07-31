@@ -1,0 +1,9 @@
+target/
+.svn
+classes/
+node_modules/
+
+.idea
+*.iml
+*.ini
+swys.properties

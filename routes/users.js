@@ -108,7 +108,6 @@ router.get('/queryUser',function (req, res, next)
 });
 
 
-
 //注册用户
 router.post('/register',function (req,res,next)
 {
@@ -199,5 +198,119 @@ router.get("/loginout",function(req,res){    // 到达 /logout 路径则登出�
     // req.session.error = null;
     // res.redirect("/");
 });
+
+
+
+
+// $$$$$$$$$$$$$$$$$  社区相关接口 ###################
+
+
+//申请创建社区
+router.post('/onCreateCommunity',function (req,res,next)
+{
+    // console.log(req);
+    //从连接池中获取链接
+    pool.getConnection(function (err,connection)
+    {
+        console.log(req.body);
+        let param = req.body;
+        var date = new Date();
+        connection.query(userSQL.insertCommunity,[param.name,
+            param.desc,
+            param.uId,
+            date,
+            '1'],function (err,result) {
+                console.log(err);
+                console.log(result);
+                console.log('insertCommunity');
+                var commCate = new Array();
+                for(var i = 0;i < param.columns.value.length;i++ ){
+                    commCate.push([
+                        param.columns.value[i],
+                        result.insertId
+                    ]);
+                }
+                console.log(commCate);
+                console.log('commCate');
+                connection.query(userSQL.insertCommunityCate,[commCate],function (err,result)
+                {
+                    console.log(err);
+                    console.log(result);
+                    res.send(result);
+                    connection.release();
+                });
+        });
+    });
+});
+
+
+
+//查询社区
+router.get("/queryCommunity",function(req,res){
+    var communityResult = null;
+    pool.getConnection(function (err,connection)
+    {
+        let param = req.query || req.param;
+        connection.query(userSQL.queryCommunity,[param.status],function (err,result)
+        {
+            communityResult = JSON.parse(JSON.stringify(result));
+            for (let i = 0;i < communityResult.length;i++)
+            {
+                connection.query(userSQL.queryCommunityCate, [communityResult[i].community_id], function (err, result) {
+                    communityResult[i].columns = result;
+                    console.log(communityResult[i]);
+                    if(i == (communityResult.length - 1))
+                    {
+                        res.send(communityResult);
+                        connection.release();
+                    }
+                });
+            }
+
+        });
+    });
+});
+
+
+
+//查询社区
+router.get("/queryCreateCommunity",function(req,res){
+    pool.getConnection(function (err,connection)
+    {
+        // console.log(req);
+        let param = req.query || req.param;
+        console.log(param);
+        connection.query(userSQL.queryCreateCommunity,[param.uId],function (err,result)
+        {
+            console.log(result);
+            res.send(result);
+            connection.release();
+        });
+    });
+});
+
+
+
+//审批社区，更新申请状态
+router.post('/updateCommunity',function (req,res,next)
+{
+    // console.log(req);
+    //从连接池中获取链接
+    pool.getConnection(function (err,connection)
+    {
+        console.log(req.body);
+        let param = req.body;
+        connection.query(userSQL.updateCommunity,[param.status,
+            param.approver_uid,
+            param.approval_comments,param.community_id],function (err,result) {
+            console.log(err);
+            console.log(result);
+            res.send(result);
+            connection.release();
+        });
+    });
+});
+
+
 
 module.exports = router;
